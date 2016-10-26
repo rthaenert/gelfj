@@ -110,4 +110,19 @@ public class GelfHandlerTest
         assertThat("No empty key exists", fields.get(""), CoreMatchers.nullValue());
     }
 
+    @Test
+    public void testLogFormattingWithPositionalPercentParameters() {
+    	Logger myLogger = Logger.getLogger("testLogFormattingWithPositionalPercentParameters");
+    	myLogger.log( Level.FINE, "logging positional params: {%1$s}", new Object[] {"paramString"});
+    	
+    	assertEquals( gelfSender.getLastMessage().getFullMessage(), "logging positional params: paramString" );
+    }
+    
+    @Test
+    public void testLogFormattingWithPositionalPercentParameters2() {
+    	Logger myLogger = Logger.getLogger("testLogFormattingWithPositionalPercentParameters2");
+    	myLogger.log( Level.FINE, "logging positional params: <%1$s>", new Object[] {"paramString"});
+    	
+    	assertEquals( gelfSender.getLastMessage().getFullMessage(), "logging positional params: <paramString>" );
+    }
 }
