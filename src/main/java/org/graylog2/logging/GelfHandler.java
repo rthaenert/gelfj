@@ -1,7 +1,5 @@
 package org.graylog2.logging;
 
-import org.graylog2.*;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -15,7 +13,19 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.IllegalFormatConversionException;
 import java.util.Map;
-import java.util.logging.*;
+import java.util.logging.ErrorManager;
+import java.util.logging.Filter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+
+import org.graylog2.GelfAMQPSender;
+import org.graylog2.GelfMessage;
+import org.graylog2.GelfSender;
+import org.graylog2.GelfSenderResult;
+import org.graylog2.GelfTCPSender;
+import org.graylog2.GelfUDPSender;
 
 public class GelfHandler
         extends Handler {
@@ -177,7 +187,11 @@ public class GelfHandler
         if (message == null) message = "";
         if (parameters != null && parameters.length > 0) {
             //by default, using {0}, {1}, etc. -> MessageFormat
-            message = MessageFormat.format(message, parameters);
+            try {
+                message = MessageFormat.format(message, parameters);
+            } catch(IllegalArgumentException e) {
+                message = record.getMessage();
+            }
 
             if (message.equals(record.getMessage())) {
                 //if the text is the same, assuming this is String.format type log (%s, %d, etc.)
